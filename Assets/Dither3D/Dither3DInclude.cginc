@@ -15,6 +15,8 @@ float _Contrast;
 float _StretchSmoothness;
 float _InputExposure;
 float _InputOffset;
+float _Dither3DCGA;
+float4 _Dither3DCGARamp;
 
 // dx is the delta in u and v coordinates along the screen X axis.
 // dy is the delta in u and v coordinates along the screen Y axis.
@@ -270,8 +272,41 @@ fixed4 GetDither3DColor_(float2 uv_DitherTex, float4 screenPos, float2 dx, float
     color.rgb = saturate(color.rgb * _InputExposure + _InputOffset);
     
     #ifdef DITHERCOL_GRAYSCALE
-        fixed4 dither = GetDither3D_(uv_DitherTex, screenPos, dx, dy, GetGrayscale(color));
-        color.rgb = dither.x;
+        fixed brightness = GetGrayscale(color);
+        fixed4 dither = GetDither3D_(uv_DitherTex, screenPos, dx, dy, brightness);
+        if (_Dither3DCGA > 0.5)
+        {
+            // Recolor the finished grayscale dots without changing their
+            // placement, density, scale, contrast, or inversion. Clamp the
+            // artist controls into ascending stops to avoid zero-width ranges.
+            fixed cyanHold = saturate(_Dither3DCGARamp.x);
+            fixed magentaPoint = clamp(
+                _Dither3DCGARamp.y,
+                cyanHold + 0.001,
+                0.999);
+            fixed whitePoint = clamp(
+                _Dither3DCGARamp.z,
+                magentaPoint + 0.001,
+                1.0);
+
+            fixed cyanToMagenta = saturate(
+                (brightness - cyanHold) / (magentaPoint - cyanHold));
+            fixed magentaToWhite = saturate(
+                (brightness - magentaPoint) / (whitePoint - magentaPoint));
+            fixed3 dotColor = lerp(
+                fixed3(0.0, 1.0, 1.0),
+                fixed3(1.0, 0.0, 1.0),
+                cyanToMagenta);
+            dotColor = lerp(
+                dotColor,
+                fixed3(1.0, 1.0, 1.0),
+                magentaToWhite);
+            color.rgb = dotColor * dither.x;
+        }
+        else
+        {
+            color.rgb = dither.x;
+        }
         #if (DEBUG_FRACTAL)
             fixed3 uvVis = dither.yzw;
             color.rgb = lerp(color.rgb, uvVis, 0.7);

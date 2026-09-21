@@ -16,10 +16,15 @@ public class Dither3DGlobalProperties : MonoBehaviour
 {
     static List<Material> ditherMaterials = new List<Material>();
 
-    public enum DitherColorMode { Grayscale, RGB, CMYK }
+    public enum DitherColorMode { Grayscale, RGB, CMYK, CGA }
 
     [Header("Global Options")]
     public DitherColorMode colorMode;
+
+    [Header("CGA Dot Color Ramp")]
+    [Range(0f, 1f)] public float cgaCyanHold = 0.15f;
+    [Range(0f, 1f)] public float cgaMagentaPoint = 0.35f;
+    [Range(0f, 1f)] public float cgaWhitePoint = 0.6f;
 
     public bool inverseDots;
     public bool radialCompensation;
@@ -98,9 +103,19 @@ public class Dither3DGlobalProperties : MonoBehaviour
 
     void UpdateGlobalOptions()
     {
-        EnableKeyword("DITHERCOL_GRAYSCALE", colorMode == DitherColorMode.Grayscale);
+        bool cgaMode = colorMode == DitherColorMode.CGA;
+        EnableKeyword("DITHERCOL_GRAYSCALE", colorMode == DitherColorMode.Grayscale || cgaMode);
         EnableKeyword("DITHERCOL_RGB", colorMode == DitherColorMode.RGB);
         EnableKeyword("DITHERCOL_CMYK", colorMode == DitherColorMode.CMYK);
+        // CGA deliberately reuses the proven grayscale shader variant. Keeping
+        // it out of the keyword set guarantees identical dither sampling.
+        EnableKeyword("DITHERCOL_CGA", false);
+        Shader.SetGlobalFloat("_Dither3DCGA", cgaMode ? 1f : 0f);
+        Shader.SetGlobalVector("_Dither3DCGARamp", new Vector4(
+            cgaCyanHold,
+            cgaMagentaPoint,
+            cgaWhitePoint,
+            0f));
         EnableKeyword("INVERSE_DOTS", inverseDots);
         EnableKeyword("RADIAL_COMPENSATION", radialCompensation);
         EnableKeyword("QUANTIZE_LAYERS", quantizeLayers);

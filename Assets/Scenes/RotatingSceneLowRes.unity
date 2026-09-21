@@ -218,7 +218,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82e40db38270a4297aa522b0a441f5bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  monochrome: 1
+  monochrome: 0
   darkColor: {r: 0, g: 0, b: 0, a: 1}
   lightColor: {r: 1, g: 1, b: 1, a: 1}
   monochromeShader: {fileID: 4800000, guid: d63ac8e9aa3a143ae830f3acc6e0a7a5, type: 3}
@@ -426,7 +426,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e125df9991507453eaf633f12ee503f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorMode: 1
+  colorMode: 3
+  cgaCyanHold: 0.15
+  cgaMagentaPoint: 0.35
+  cgaWhitePoint: 0.6
   inverseDots: 0
   radialCompensation: 0
   quantizeLayers: 0

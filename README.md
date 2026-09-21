@@ -47,7 +47,9 @@ How much to smooth anisotropic dots (default 1).
 Furthermore, the following global toggle properties can be set via the `Dither3DGlobalProperties` component:
 
 - `Color Mode`  
-Can be set to Grayscale, RGB or CMYK. Grayscale converts the color to grayscale and runs the dithering once on that. RGB runs the dithering separately for the red, green and blue color channel. CMYK converts the color to CMYK, runs the dithering on each of those with traditional halftone rotations applied, and converts back to RGB.
+Can be set to Grayscale, RGB, CMYK or CGA. Grayscale converts the color to grayscale and runs the dithering once on that. RGB runs the dithering separately for the red, green and blue color channel. CMYK converts the color to CMYK, runs the dithering on each of those with traditional halftone rotations applied, and converts back to RGB. CGA runs the exact same grayscale dither once, then colors its dots Cyan, Magenta or White according to source luminance over a Black background.
+- `CGA Cyan Hold`, `CGA Magenta Point`, `CGA White Point`
+Control the luminance positions of the CGA dot-color ramp. Dots remain pure cyan through Cyan Hold, transition to pure magenta at Magenta Point, then transition to pure white at White Point. Black coverage continues to come from the unchanged grayscale dither pattern.
 - `Inverse Dots`  
 For Grayscale and RGB, disabled produces bright dots on dark background (recommended) while enabled produces dark dots on light background. For CMYK, disabled produces dark dots on light background (like ink) while enabled produces light dots on dark background. Here, disabled works best if the shapes of the individual dots are clearly visible, but it can produce significant banding. For smaller dot sizes, enabled is recommended.
 - `Radial Compensation`  
